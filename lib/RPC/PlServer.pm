@@ -29,7 +29,7 @@ use RPC::PlServer::Comm ();
 package RPC::PlServer;
 
 @RPC::PlServer::ISA = qw(Net::Daemon RPC::PlServer::Comm);
-$RPC::PlServer::VERSION = '0.2011';
+$RPC::PlServer::VERSION = '0.2012';
 
 
 ############################################################################
@@ -307,9 +307,13 @@ sub CallMethod ($$$@) {
     my($self, $handle, $method, @args) = @_;
     my($ref, $object);
 
-    my $lock = lock($Net::Daemon::RegExpLock)
-	if $Net::Daemon::RegExpLock && $self->{'mode'} eq 'threads';
-    if ($handle =~ /=\w+\(0x/) {
+    my $call_by_instance;
+    {
+	my $lock = lock($Net::Daemon::RegExpLock)
+	    if $Net::Daemon::RegExpLock && $self->{'mode'} eq 'threads';
+	$call_by_instance = ($handle =~ /=\w+\(0x/);
+    }
+    if ($call_by_instance) {
 	# Looks like a call by instance
 	$object = $self->UseHandle($handle);
 	$ref = ref($object);

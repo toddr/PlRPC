@@ -30,7 +30,7 @@ use IO::Socket ();
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2011';
+$RPC::PlClient::VERSION = '0.2012';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 

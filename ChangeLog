@@ -1,3 +1,14 @@
+1999-06-26  Jochen Wiedmann <joe@ispsoft.de> (0.2012)
+
+	* lib/RPC/PlServer.pm (CallMethod): RegExpLock was
+	  used too long. Thanks to Brady Montz (bradym@cs.arizona.edu).
+
+1999-06-26  Jochen Wiedmann  <joe@ispsoft.de> (0.2011)
+
+	* lib/RPC/PlServer/Comm.pm (Read): The result of read()
+	  was used incorrect, resulting in never ending loops.
+	  Thanks to Gerald Richter (richter@ecos.de).
+
 1999-04-09  Jochen Wiedmann  <joe@ispsoft.de> (0.2010)
 
 	* lib/RPC/PlServer/Comm.pm (Read): Added 'maxmessage' option

@@ -28,7 +28,7 @@ require Storable;
 package RPC::PlServer::Comm;
 
 
-$RPC::PlServer::Comm::VERSION = '0.1000';
+$RPC::PlServer::Comm::VERSION = '0.1001';
 
 
 ############################################################################
