@@ -30,7 +30,7 @@ use IO::Socket ();
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2014';
+$RPC::PlClient::VERSION = '0.2015';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 
@@ -404,12 +404,13 @@ RPC::PlServer man page. See L<RPC::PlServer(3)>.
     my $MY_PASSWORD = "";	# authentication.
 
     my $hexdigest = eval {
-        RPC::PlClient->new('peeraddr'    => 'joes.host.de',
-			   'peerport'    => 5000,
-			   'application' => $MY_APPLICATION,
-			   'version'     => $MY_VERSION,
-			   'user'        => $MY_USER,
-			   'password'    => $MY_PASSWORD);
+        my $client = RPC::PlClient->new
+	    ('peeraddr'    => '127.0.0.1',
+	     'peerport'    => 2000,
+	     'application' => $MY_APPLICATION,
+	     'version'     => $MY_VERSION,
+	     'user'        => $MY_USER,
+	     'password'    => $MY_PASSWORD);
 
         # Create an MD5 object on the server and an associated
         # client object. Executes a
