@@ -30,7 +30,7 @@ use IO::Socket ();
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2016';
+$RPC::PlClient::VERSION = '0.2017';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 
@@ -52,6 +52,7 @@ sub new ($@) {
     my $self = {@_};
     bless($self, (ref($proto) || $proto));
 
+    $self->RPC::PlServer::Comm::Init();
     my $app = $self->{'application'}  or
 	$self->Fatal("Missing application name");
     my $version = $self->{'version'}  or
@@ -86,7 +87,6 @@ sub new ($@) {
     die "Refused by server: $msg" unless $reply->[0];
     $self->Debug("Logged in, server replies: $msg");
 
-    $self->RPC::PlServer::Comm::Init();
     return ($self, $msg) if wantarray;
     $self;
 }
@@ -123,6 +123,12 @@ sub ClientObject {
     die "Constructor didn't return an object"
 	unless $object =~ /^((?:\w+|\:\:)+)=(\w+)/;
     RPC::PlClient::Object->new($1, $client, $object);
+}
+
+sub Disconnect {
+    my $self = shift;
+    $self->{'socket'} = undef;
+    1;
 }
 
 

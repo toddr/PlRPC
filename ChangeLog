@@ -1,3 +1,12 @@
+2003-05-31  Jochen Wiedmann  <joe@ispsoft.de> (0.2017)
+
+	* lib/RPC/PlClient.pm: Added Disconnect method for
+	  proper cleanup of resources. Steven N. Hirsch,
+	  hirschs at btv.ibm.com
+	* lib/RPC/PlClient.pm: Initialization of Comm module
+	  is now at the beginning of new(). Steven N. Hirsch,
+	  hirschs at btv.ibm.com
+
 2001-10-01  Jochen Wiedmann <joe@ispsoft.de> (0.2016)
 
 	* lib/RPC/PlServer/Comm.pm (Write): Added
