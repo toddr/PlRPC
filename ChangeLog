@@ -1,3 +1,14 @@
+1999-01-13  Jochen Wiedmann  <joe@ispsoft.de> (0.2003)
+
+	* lib/RPC/PlServer.pm (CallMethod): Fixed bug in lock
+	  handling, thanks to schinder@pobox.com.
+
+1999-01-12  Jochen Wiedmann  <joe@ispsoft.de> (0.2002)
+
+	* Added use of Net::Daemon::RegExpLock.
+	* Fixed prerequisite checks in Makefile.PL, my thanks to
+	  Andreas Koenig <Andreas.Koenig@anima.de>.
+
 1998-10-30  Jochen Wiedmann  <joe@ispsoft.de> (0.2001)
 
 	* t/methods.t: $handle->Terminate() wasn't called without END.

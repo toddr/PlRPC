@@ -30,7 +30,7 @@ require IO::Socket;
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2000';
+$RPC::PlClient::VERSION = '0.2003';
 @RPC::PlClient::ISA = qw(RPC::PlServer::Comm Net::Daemon::Log);
 
 
@@ -63,7 +63,8 @@ sub new ($@) {
     if (!($socket = $self->{'socket'})) {
 	$self->Fatal("Missing peer address") unless $self->{'peeraddr'};
 	$self->Fatal("Missing peer port")
-	    unless ($self->{'peerport'}  ||  $self->{'peeraddr'} =~ /:/);
+	    unless ($self->{'peerport'}  ||
+		    index($self->{'peeraddr'}, ':') != -1);
 	$socket = $self->{'socket'} = IO::Socket::INET->new
 	    ('PeerAddr' => $self->{'peeraddr'},
 	     'PeerPort' => $self->{'peerport'},
@@ -124,7 +125,6 @@ sub ClientObject {
     die "Constructor didn't return a TRUE value" unless $object;
     die "Constructor didn't return an object"
 	unless $object =~ /^((?:\w+|\:\:)+)=(\w+)/;
-
     RPC::PlClient::Object->new($1, $client, $object);
 }
 
@@ -135,8 +135,11 @@ use vars qw($AUTOLOAD);
 
 sub AUTOLOAD {
     my $method = $AUTOLOAD;
-    $method =~ s/(.*):://;
-    my $class = $1;
+    my $index;
+    die "Cannot parse method: $method"
+	unless ($index = rindex($method, '::')) != -1;
+    my $class = substr($method, 0, $index);
+    $method = substr($method, $index+2);
     eval <<"EOM";
         package $class;
         sub $method {

@@ -35,8 +35,8 @@ sub CheckModule ($;$$) {
 
 
 my $ok = 1;
-$ok &&= CheckModule("Storable");
-$ok &&= CheckModule("Net::Daemon", 0.13);
+$ok = 0 unless CheckModule("Storable");
+$ok = 0 unless CheckModule("Net::Daemon", 0.13);
 if (!$ok) {
     print <<"MESSAGE";
 
