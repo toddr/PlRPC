@@ -1,0 +1,40 @@
+1998-10-30  Jochen Wiedmann  <joe@ispsoft.de> (0.2001)
+
+	* t/methods.t: $handle->Terminate() wasn't called without END.
+
+1998-10-28  Jochen Wiedmann  <joe@ispsoft.de> (0.2000)
+
+	* Complete rewrite, based on Net::Daemon. Renamed to PlRPC,
+	  due to compatibility problems.
+
+1998-09-08  Jochen Wiedmann  <joe@ispsoft.de> (0.1006)
+
+	* lib/RPC/pClient.pm: Added Log(), Debug(), Error() and Fatal()
+	  methods to support Windows. $self->{'stderr'} can now be an
+	  IO handle or any other object supporting a print method.
+	  My thanks to Toni L. Harbaugh <harbaugh@nciaxp.ncifcrf.gov> for
+	  his patches.
+
+1998-08-13  Jochen Wiedmann  <joe@ispsoft.de> (0.1005)
+
+	* Makefile.PL: Added check for Sys::Syslog.h to detect problems
+	  with missing sys/syslog.ph.
+
+1998-07-19  Jochen Wiedmann  <joe@ispsoft.de> (0.1004)
+
+	* lib/RPC/pServer.pm: Embedded all occurrences of setlogsock('unix')
+	  into an eval. Required, because it otherwise fails on Solaris.
+
+1998-07-18  Jochen Wiedmann  <joe@spsoft.de> (0.1003)
+
+	* Minor fixes to prevent warnings with DBI::ProxyServer.
+
+0.1002  Checking for existence of Sys::Syslog::setlogsock in test scripts.
+	(Ulrich Pfeifer, upf@de.uu.net)
+	Fixed Socket::inet_ntoa() instead of inet_ntoa() in pServer.pm.
+	(Ulrich Pfeifer, upf@de.uu.net)
+	Added 'Reuse' => 1 to server configuration.
+
+0.1001  Tue Aug 19 17:53:44 1997
+	- original version; created by h2xs 1.18
+
