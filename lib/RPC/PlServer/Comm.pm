@@ -11,12 +11,7 @@
 #   License or the Artistic License, as specified in the Perl README file.
 #
 #   Author: Jochen Wiedmann
-#           Am Eisteich 9
-#           72555 Metzingen
-#           Germany
-#
-#           Email: joe@ispsoft.de
-#           Phone: +49 7123 14887
+#           Email: jochen.wiedmann at freenet.de
 #
 
 require 5.004;
@@ -28,7 +23,46 @@ require Storable;
 package RPC::PlServer::Comm;
 
 
-$RPC::PlServer::Comm::VERSION = '0.1002';
+$RPC::PlServer::Comm::VERSION = '0.1003';
+
+
+############################################################################
+#
+#   Name:    new (Class method)
+#
+#   Purpose: Constructor
+#
+#   Inputs:  $class - This class
+#            $attr - Hash ref of attributes
+#
+#   Result:  Server object for success, error message otherwise
+#
+############################################################################
+
+sub new ($) {
+    my($class, $attr) = @_;
+    my $self = {};
+    bless($self, (ref($class) || $class));
+
+    if (my $comp = $attr->{'compression'}) {
+	if ($comp eq 'off') {
+	    $self->{'compression'} = undef;
+	} elsif ($comp eq 'gzip') {
+	    require Compress::Zlib;
+	    $self->{'compression'} = 'gzip';
+	} else {
+	    die "Unknown compression type ($comp), use 'off' or 'gzip'";
+	}
+    }
+    if (my $cipher = $attr->{'cipher'}) {
+	$self->{'cipher'} = $cipher;
+    }
+    if (my $maxmessage = $attr->{'maxmessage'}) {
+	$self->{'maxmessage'} = $maxmessage;
+    }
+
+    $self;
+}
 
 
 ############################################################################
@@ -44,15 +78,15 @@ $RPC::PlServer::Comm::VERSION = '0.1002';
 #            stored size remains unchanged.
 #
 #   Inputs:  $self - Instance of RPC::PlServer or RPC::PlClient
+#            $socket - The socket to write to
 #            $args - Reference to array of arguments being sent
 #
 #   Result:  Nothing; dies in case of errors.
 #
 ############################################################################
 
-sub Write ($$) {
-    my($self, $msg) = @_;
-    my $socket = $self->{'socket'};
+sub Write ($$$) {
+    my($self, $socket, $msg) = @_;
 
     my $encodedMsg = Storable::nfreeze($msg);
     $encodedMsg = Compress::Zlib::compress($encodedMsg)
@@ -89,14 +123,14 @@ sub Write ($$) {
 #            above for specs.
 #
 #   Inputs:  $self - Instance of RPC::PlServer or RPC::PlClient
+#            $socket - The socket to read from
 #
 #   Result:  Array ref to result list; dies in case of errors.
 #
 ############################################################################
 
-sub Read($) {
-    my $self = shift;
-    my $socket = $self->{'socket'};
+sub Read($$) {
+    my($self, $socket) = @_;
     my $result;
 
     my($encodedSize, $readSize, $blockSize);
@@ -112,9 +146,9 @@ sub Read($) {
 	$readSize -= $result;
     }
     $encodedSize = unpack("N", $encodedSize);
-    my $max = $self->{'maxmessage'} || (1 << 16);
+    my $max = $self->getMaxMessage();
     die "Maximum message size of $max exceeded, use option 'maxmessage' to"
-	. " increase" if $encodedSize > $max;
+	. " increase" if $max  &&  $encodedSize > $max;
     $readSize = $encodedSize;
     if ($self->{'cipher'}) {
 	$blockSize = $self->{'cipher'}->blocksize;
@@ -158,18 +192,22 @@ sub Read($) {
 #
 ############################################################################
 
-sub Init {
+############################################################################
+#
+#   Name:    getMaxMessage
+#
+#   Purpose: Returns the maximum size of a message
+#
+#   Inputs:  None
+#
+#   Returns: Maximum message size or 65536, if none specified
+#
+############################################################################
+
+sub getMaxMessage() {
     my $self = shift;
-    if (my $comp = $self->{'compression'}) {
-	if ($comp eq 'off') {
-	    $self->{'compression'} = undef;
-	} elsif ($comp eq 'gzip') {
-	    require Compress::Zlib;
-	} else {
-	    die "Unknown compression type ($comp), use 'off' or 'gzip'";
-	}
-    }
-    $self;
+    return defined($self->{'maxmessage'}) ?
+	$self->{'maxmessage'} : 65536;
 }
 
 

@@ -11,25 +11,20 @@
 #   License or the Artistic License, as specified in the Perl README file.
 #
 #   Author: Jochen Wiedmann
-#           Am Eisteich 9
-#           72555 Metzingen
-#           Germany
-#
-#           Email: joe@ispsoft.de
-#           Phone: +49 7123 14881
+#           Email: jochen.wiedmann at freenet.de
 #
 #
 
 use strict;
 
-use Net::Daemon ();
-use RPC::PlServer::Comm ();
+require Net::Daemon;
+require RPC::PlServer::Comm;
 
 
 package RPC::PlServer;
 
-@RPC::PlServer::ISA = qw(Net::Daemon RPC::PlServer::Comm);
-$RPC::PlServer::VERSION = '0.2017';
+@RPC::PlServer::ISA = qw(Net::Daemon);
+$RPC::PlServer::VERSION = '0.2018';
 
 
 ############################################################################
@@ -136,6 +131,8 @@ sub AcceptUser ($$$) {
 
 sub Accept ($) {
     my $self = shift;
+    my $socket = $self->{'socket'};
+    my $comm = $self->{'comm'};
     return 0 if (!$self->SUPER::Accept());
     my $client;
     if ($client = $self->{'client'}) {
@@ -145,7 +142,7 @@ sub Accept ($) {
 	}
     }
 
-    my $msg = $self->RPC::PlServer::Comm::Read();
+    my $msg = $comm->Read($socket);
     die "Unexpected EOF from client" unless defined $msg;
     die "Login message: Expected array, got $msg" unless ref($msg) eq 'ARRAY';
 
@@ -158,23 +155,22 @@ sub Accept ($) {
 		 $app, $version, $user);
 
     if (!$self->AcceptApplication($app)) {
-	$self->RPC::PlServer::Comm::Write
-	    ([0, "This is a " . ref($self) . " server, go away!"]);
+	$comm->Write($socket,
+		     [0, "This is a " . ref($self) . " server, go away!"]);
 	return 0;
     }
     if (!$self->AcceptVersion($version)) {
-	$self->RPC::PlServer::Comm::Write
-	    ([0, "Sorry, but I am not running version $version."]);
+	$comm->Write($socket,
+		     [0, "Sorry, but I am not running version $version."]);
 	return 0;
     }
     my $result;
     if (!($result = $self->AcceptUser($user, $password))) {
-	$self->RPC::PlServer::Comm::Write
-	    ([0, "User $user is not permitted to connect."]);
+	$comm->Write($socket,
+		     [0, "User $user is not permitted to connect."]);
 	return 0;
     }
-    $self->RPC::PlServer::Comm::Write
-	(ref($result) ? $result : [1, "Welcome!"]);
+    $comm->Write($socket, (ref($result) ? $result : [1, "Welcome!"]));
     if (my $au = $self->{'authorized_user'}) {
 	if (ref($au)  &&  (my $cipher = $au->{'cipher'})) {
 	    $self->Debug("User encryption: %s", $cipher);
@@ -213,7 +209,8 @@ sub Accept ($) {
 
 sub new ($$;$) {
     my $self = shift->SUPER::new(@_);
-    $self->RPC::PlServer::Comm::Init();
+    $self->{'comm'} = RPC::PlServer::Comm->new($self);
+    $self;
 }
 
 
@@ -231,10 +228,11 @@ sub new ($$;$) {
 
 sub Run ($) {
     my $self = shift;
+    my $comm = $self->{'comm'};
     my $socket = $self->{'socket'};
 
     while (!$self->Done()) {
-	my $msg = $self->RPC::PlServer::Comm::Read();
+	my $msg = $comm->Read($socket);
 	last unless defined($msg);
 	die "Expected array" unless ref($msg) eq 'ARRAY';
 	my($error, $command);
@@ -254,12 +252,12 @@ sub Run ($) {
 		if ($@) {
 		    $error = "Failed to execute method $command: $@";
 		} else {
-		    $self->RPC::PlServer::Comm::Write(\@result);
+		    $comm->Write($socket, \@result);
 		}
 	    }
 	}
 	if ($error) {
-	    $self->RPC::PlServer::Comm::Write(\$error);
+	    $comm->Write($socket, \$error);
 	}
     }
 }
@@ -676,12 +674,7 @@ DBI::ProxyServer for an example.
 The PlRPC-modules are
 
   Copyright (C) 1998, Jochen Wiedmann
-                      Am Eisteich 9
-                      72555 Metzingen
-                      Germany
-
-                      Phone: +49 7123 14887
-                      Email: joe@ispsoft.de
+                      Email: jochen.wiedmann at freenet.de
 
   All rights reserved.
 

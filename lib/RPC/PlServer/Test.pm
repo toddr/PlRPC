@@ -13,4 +13,4 @@ package RPC::PlServer::Test;
 $RPC::PlServer::Test::VERSION = '0.01';
 @RPC::PlServer::Test::ISA = qw(RPC::PlServer);
 
-@RPC::PlServer::ISA = qw(Net::Daemon::Test RPC::PlServer::Comm);
+@RPC::PlServer::ISA = qw(Net::Daemon::Test);

@@ -40,7 +40,7 @@ machine. Please check out the following error message:
 
 $@
 
-In either case, please contact the package author, joe\@ispsoft.de and
+In either case, please contact the package author, jochen.wiedmann\@freenet.de and
 let him know your machine configuration (try "perl -V") and the above
 error message.
 
@@ -69,7 +69,7 @@ my %opts = (
 );
 
 if ($ExtUtils::MakeMaker::VERSION >= 5.43) {
-    $opts{'AUTHOR'} = 'Jochen Wiedmann (joe@ispsoft.de)';
+    $opts{'AUTHOR'} = 'Jochen Wiedmann (jochen.wiedmann@freenet.de)';
     $opts{'PREREQ_PM'} = { 'Storable'=> 0,
 			   'Net::Daemon' => 0.13 },
     $opts{'ABSTRACT'} = 'Perl Remote Method Invocation';

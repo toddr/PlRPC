@@ -31,8 +31,8 @@ DESCRIPTION
 
     RPC::PlServer is the package used on the server side, and you guess what
     RPC::PlClient is for. Both share the package RPC::PlServer::Comm for
-    communication purposes. See the PlRPC::Client(3) manpage and the
-    RPC::PlServer::Comm manpage for these parts.
+    communication purposes. See PlRPC::Client(3) and RPC::PlServer::Comm for
+    these parts.
 
     PlRPC works by defining a set of methods that may be executed by the
     client. For example, the server might offer a method "multiply" to the
@@ -53,7 +53,6 @@ DESCRIPTION
     You have to derive your own classes from it.
 
   Additional options
-
     The RPC::PlServer inherits all of Net::Daemon's options and attributes
     and adds the following:
 
@@ -71,11 +70,9 @@ DESCRIPTION
     users   This is an attribute of the client object used for Permit/Deny
             rules in the config file. It's value is an array ref of user
             names that are allowed to connect from the given client. See the
-            example config file below. the CONFIGURATION FILE entry
-            elsewhere in this document.
+            example config file below. "CONFIGURATION FILE".
 
   Error Handling
-
     Error handling is simple with the RPC package, because it is based on
     Perl exceptions completely. Thus your typical code looks like this:
 
@@ -89,14 +86,12 @@ DESCRIPTION
       }
 
   Server Constructors
-
       my $server = RPC::PlServer(\%options, \@args);
 
     (Class method) This constructor is immediately inherited from the
-    Net::Daemon package. See the Net::Daemon(3) manpage for details.
+    Net::Daemon package. See Net::Daemon(3) for details.
 
   Access Control
-
       $ok = $self->AcceptApplication($app);
       $ok = $self->AcceptVersion($version);
       $ok = $self->AcceptUser($user, $password);
@@ -114,11 +109,10 @@ DESCRIPTION
     returns TRUE, if $self is a subclass of $app. The AcceptVersion method
     returns TRUE, if the requested version is less or equal to
     ${$class}::VERSION, $self being an instance of $class. Whether a user is
-    permitted to connect depends on the client configuration. See the
-    CONFIGURATION FILE entry elsewhere in this document below for examples.
+    permitted to connect depends on the client configuration. See
+    "CONFIGURATION FILE" below for examples.
 
   Method based access control
-
     Giving a client the ability to invoke arbitrary methods can be a
     terrible security hole. Thus the server has a *methods* attribute. This
     is a hash ref of class names as keys, the values being hash refs again
@@ -199,9 +193,8 @@ EXAMPLE
     Enough wasted time, spread the example, not the word. :-) Let's write a
     simple server, say a server for MD5 digests. The server uses the
     external package MD5, but the client doesn't need to install the
-    package. the MD5(3) manpage. We present the server source here, the
-    client is part of the RPC::PlClient man page. See the RPC::PlClient(3)
-    manpage.
+    package. MD5(3). We present the server source here, the client is part
+    of the RPC::PlClient man page. See RPC::PlClient(3).
 
         #!/usr/bin/perl -wT
         # Note the -T switch! This is always recommended for Perl servers.
@@ -255,13 +248,12 @@ SECURITY
     I highly recommend the following design principles:
 
   Protection against "trusted" users
-
     perlsec
-        Read the perl security FAQ (`perldoc perlsec') and use the `-T'
+        Read the perl security FAQ ("perldoc perlsec") and use the "-T"
         switch.
 
     taintperl
-        Use the `-T' switch. I mean it!
+        Use the "-T" switch. I mean it!
 
     Verify data
         Never untaint strings withouth verification, better verify twice.
@@ -272,17 +264,16 @@ SECURITY
         Think twice, before you give a client access to a method.
 
     perlsec
-        And just in case I forgot it: Read the `perlsec' man page. :-)
+        And just in case I forgot it: Read the "perlsec" man page. :-)
 
   Protection against untrusted users
-
     Host based authorization
-        PlRPC has a builtin host based authorization scheme; use it! See the
-        CONFIGURATION FILE entry elsewhere in this document.
+        PlRPC has a builtin host based authorization scheme; use it! See
+        "CONFIGURATION FILE".
 
     User based authorization
-        PlRPC has a builtin user based authorization scheme; use it! See the
-        CONFIGURATION FILE entry elsewhere in this document.
+        PlRPC has a builtin user based authorization scheme; use it! See
+        "CONFIGURATION FILE".
 
     Encryption
         Using encryption with PlRPC is extremely easy. There is absolutely
@@ -296,12 +287,7 @@ AUTHOR AND COPYRIGHT
     The PlRPC-modules are
 
       Copyright (C) 1998, Jochen Wiedmann
-                          Am Eisteich 9
-                          72555 Metzingen
-                          Germany
-
-                          Phone: +49 7123 14887
-                          Email: joe@ispsoft.de
+                          Email: jochen.wiedmann at freenet.de
 
       All rights reserved.
 
@@ -310,9 +296,8 @@ AUTHOR AND COPYRIGHT
     README file.
 
 SEE ALSO
-    the RPC::PlClient(3) manpage, the RPC::PlServer::Comm(3) manpage, the
-    Net::Daemon(3) manpage, the Net::Daemon::Log(3) manpage, the Storable(3)
-    manpage, the Sys::Syslog(3) manpage, the Win32::EventLog(3) manpage
+    RPC::PlClient(3), RPC::PlServer::Comm(3), Net::Daemon(3),
+    Net::Daemon::Log(3), Storable(3), Sys::Syslog(3), Win32::EventLog(3)
 
-    See the DBI::ProxyServer(3) manpage for an example application.
+    See DBI::ProxyServer(3) for an example application.
 

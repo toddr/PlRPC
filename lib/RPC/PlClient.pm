@@ -13,24 +13,19 @@
 #   License or the Artistic License, as specified in the Perl README file.
 #
 #   Author: Jochen Wiedmann
-#           Am Eisteich 9
-#           72555 Metzingen
-#           Germany
-#
-#           Email: joe@ispsoft.de
-#           Phone: +49 7123 14881
+#           Email: jochen.wiedmann at freenet.de
 #
 
 use strict;
 
-use RPC::PlServer::Comm ();
+use RPC::PlClient::Comm ();
 use Net::Daemon::Log ();
 use IO::Socket ();
 
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2017';
+$RPC::PlClient::VERSION = '0.2018';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 
@@ -52,7 +47,7 @@ sub new ($@) {
     my $self = {@_};
     bless($self, (ref($proto) || $proto));
 
-    $self->RPC::PlServer::Comm::Init();
+    my $comm = $self->{'comm'} = RPC::PlClient::Comm->new($self);
     my $app = $self->{'application'}  or
 	$self->Fatal("Missing application name");
     my $version = $self->{'version'}  or
@@ -78,9 +73,9 @@ sub new ($@) {
 		 $socket->peerhost(), $socket->peerport());
     $self->Debug("Sending login message: %s, %s, %s, %s",
 		 $app, $version, $user, "x" x length($password));
-    $self->RPC::PlServer::Comm::Write([$app, $version, $user, $password]);
+    $comm->Write($socket, [$app, $version, $user, $password]);
     $self->Debug("Waiting for server's response ...");
-    my $reply = $self->RPC::PlServer::Comm::Read();
+    my $reply = $comm->Read($socket);
     die "Unexpected EOF from server" unless defined($reply);
     die "Expected server to return an array ref" unless ref($reply) eq 'ARRAY';
     my $msg = defined($reply->[1]) ? $reply->[1] : '';
@@ -108,8 +103,10 @@ sub new ($@) {
 
 sub Call ($@) {
     my $self = shift;
-    $self->RPC::PlServer::Comm::Write([@_]);
-    my $msg = $self->RPC::PlServer::Comm::Read();
+    my $socket = $self->{'socket'};
+    my $comm = $self->{'comm'};
+    $comm->Write($socket, [@_]);
+    my $msg = $comm->Read($socket);
     die "Unexpected EOF while waiting for server reply" unless defined($msg);
     die "Server returned error: $$msg" if ref($msg) eq 'SCALAR';
     die "Expected server to return an array ref" unless ref($msg) eq 'ARRAY';
@@ -443,12 +440,7 @@ RPC::PlServer man page. See L<RPC::PlServer(3)>.
 The PlRPC-modules are
 
   Copyright (C) 1998, Jochen Wiedmann
-                      Am Eisteich 9
-                      72555 Metzingen
-                      Germany
-
-                      Phone: +49 7123 14887
-                      Email: joe@ispsoft.de
+                      Email: jochen.wiedmann at freenet.de
 
   All rights reserved.
 
