@@ -29,7 +29,7 @@ use RPC::PlServer::Comm ();
 package RPC::PlServer;
 
 @RPC::PlServer::ISA = qw(Net::Daemon RPC::PlServer::Comm);
-$RPC::PlServer::VERSION = '0.2012';
+$RPC::PlServer::VERSION = '0.2013';
 
 
 ############################################################################

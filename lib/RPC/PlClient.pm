@@ -30,7 +30,7 @@ use IO::Socket ();
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2012';
+$RPC::PlClient::VERSION = '0.2013';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 
@@ -165,10 +165,12 @@ sub new {
 
 
 sub DESTROY {
+    my $saved_error = $@; # Save $@
     my $self = shift;
     if (my $client = delete $self->{'client'}) {
 	eval { $client->Call('DestroyHandle', $self->{'object'}) };
     }
+    $@ = $saved_error;    # Restore $@
 }
 
 1;

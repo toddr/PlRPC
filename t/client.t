@@ -34,4 +34,4 @@ Test(eval { RPC::PlClient->new(@opts) })
     or print "Failed to make first connection: $@\n";
 
 RunTests(@opts);
-$handle->Terminate() if $handle;
+eval { $handle->Terminate() } if $handle;

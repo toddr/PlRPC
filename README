@@ -68,10 +68,11 @@ DESCRIPTION
             restricted, in order to omit denial of service attacks. By
             default the limit is 65536 bytes.
 
-    users   This is an attribute of the client object used for Permit/Deny rules
-            in the config file. It's value is an array ref of user names
-            that are allowed to connect from the given client. See the
-            example config file below. the section on "CONFIGURATION FILE".
+    users   This is an attribute of the client object used for Permit/Deny
+            rules in the config file. It's value is an array ref of user
+            names that are allowed to connect from the given client. See the
+            example config file below. the CONFIGURATION FILE entry
+            elsewhere in this document.
 
   Error Handling
 
@@ -114,7 +115,7 @@ DESCRIPTION
     returns TRUE, if the requested version is less or equal to
     ${$class}::VERSION, $self being an instance of $class. Whether a user is
     permitted to connect depends on the client configuration. See the
-    section on "CONFIGURATION FILE" below for examples.
+    CONFIGURATION FILE entry elsewhere in this document below for examples.
 
   Method based access control
 
@@ -277,11 +278,11 @@ SECURITY
 
     Host based authorization
         PlRPC has a builtin host based authorization scheme; use it! See the
-        section on "/CONFIGURATION FILE".
+        CONFIGURATION FILE entry elsewhere in this document.
 
     User based authorization
         PlRPC has a builtin user based authorization scheme; use it! See the
-        section on "/CONFIGURATION FILE".
+        CONFIGURATION FILE entry elsewhere in this document.
 
     Encryption
         Using encryption with PlRPC is extremely easy. There is absolutely

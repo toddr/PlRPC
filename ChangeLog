@@ -1,3 +1,8 @@
+2001-01-22  Jochen Wiedmann <joe@ispsoft.de> (0.2013)
+
+	* lib/RPC/PlClient.pm (DESTROY): $@ was possibly destroyed.
+	  Tushar <tushar_pokle@pacific.net.au>
+
 1999-06-26  Jochen Wiedmann <joe@ispsoft.de> (0.2012)
 
 	* lib/RPC/PlServer.pm (CallMethod): RegExpLock was

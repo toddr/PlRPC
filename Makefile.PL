@@ -7,46 +7,6 @@ use Config;
 
 $| = 1;
 
-
-my %prereq;
-sub CheckModule ($;$$) {
-    my($module, $version, $package) = @_;
-    $package ||= $module;
-    $prereq{$module} = $version || 0;
-    if ($version) {
-        print "Checking for $package, $version or later ... ";
-        eval "use $module $version";
-        if ($@) {
-            print("\nYou don't have installed the $package package,",
-                  " version $version or later.\n");
-            return 0;
-        }
-    } else {
-        print "Checking for $package ... ";
-        eval "use $module";
-        if ($@) {
-            print("\nYou don't have installed the $package package.\n");
-            return 0;
-        }
-    }
-    print "ok\n";
-    return 1;
-}
-
-
-my $ok = 1;
-$ok = 0 unless CheckModule("Storable");
-$ok = 0 unless CheckModule("Net::Daemon", 0.13);
-if (!$ok) {
-    print <<"MESSAGE";
-
-Missing modules are available from any CPAN mirror, for example
-        ftp://ftp.funet.fi/pub/languages/perl/CPAN/modules/by-module
-
-MESSAGE
-}
-
-
 # Check, if fork() is available. If so, we assume that syslog should
 # be available too. Thankfull for any better recommendations ...
 if ($Config::Config{'d_fork'} eq 'define') {
@@ -110,7 +70,8 @@ my %opts = (
 
 if ($ExtUtils::MakeMaker::VERSION >= 5.43) {
     $opts{'AUTHOR'} = 'Jochen Wiedmann (joe@ispsoft.de)';
-    $opts{'PREREQ_PM'} = \%prereq;
+    $opts{'PREREQ_PM'} = { 'Storable'=> 0,
+			   'Net::Daemon' => 0.13 },
     $opts{'ABSTRACT'} = 'Perl Remote Method Invocation';
 }
 
