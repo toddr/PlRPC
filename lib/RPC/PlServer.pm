@@ -14,7 +14,7 @@
 #           Am Eisteich 9
 #           72555 Metzingen
 #           Germany
-# 
+#
 #           Email: joe@ispsoft.de
 #           Phone: +49 7123 14881
 #
@@ -22,14 +22,14 @@
 
 use strict;
 
-require Net::Daemon;
-require RPC::PlServer::Comm;
+use Net::Daemon ();
+use RPC::PlServer::Comm ();
 
 
 package RPC::PlServer;
 
 @RPC::PlServer::ISA = qw(Net::Daemon RPC::PlServer::Comm);
-$RPC::PlServer::VERSION = '0.2003';
+$RPC::PlServer::VERSION = '0.2010';
 
 
 ############################################################################
@@ -46,6 +46,37 @@ $RPC::PlServer::VERSION = '0.2003';
 
 sub Version ($) {
     "RPC::PlServer application, Copyright (C) 1997, 1998, Jochen Wiedmann";
+}
+
+
+############################################################################
+#
+#   Name:    Options (Class method)
+#
+#   Purpose: Returns a hash ref of command line options
+#
+#   Inputs:  $class - This class
+#
+#   Result:  Options array; any option is represented by a hash ref;
+#            used keys are 'template', a string suitable for describing
+#            the option to Getopt::Long::GetOptions and 'description',
+#            a string for the Usage message
+#
+############################################################################
+
+sub Options ($) {
+    my $options = shift->SUPER::Options();
+    $options->{'maxmessage'} =
+	{ 'template' => 'maxmessage=i',
+	  'description' =>  '--maxmessage <size>           '
+	  . 'Set max message size to <size> (Default 65535).'
+	};
+    $options->{'compression'} =
+	{ 'template' => 'compression=s',
+	  'description' =>  '--compression <type>           '
+	  . 'Set compression type to off (default) or gzip.'
+	};
+    $options;
 }
 
 
@@ -114,7 +145,7 @@ sub Accept ($) {
 	}
     }
 
-    my $msg = $self->Read();
+    my $msg = $self->RPC::PlServer::Comm::Read();
     if (ref($msg) ne 'ARRAY') {
 	die "Login message: Expected array, got $msg";
     }
@@ -128,19 +159,23 @@ sub Accept ($) {
 		 $app, $version, $user);
 
     if (!$self->AcceptApplication($app)) {
-	$self->Write([0, "This is a " . ref($self) . " server, go away!"]);
+	$self->RPC::PlServer::Comm::Write
+	    ([0, "This is a " . ref($self) . " server, go away!"]);
 	return 0;
     }
     if (!$self->AcceptVersion($version)) {
-	$self->Write([0, "Sorry, but I am not running version $version."]);
+	$self->RPC::PlServer::Comm::Write
+	    ([0, "Sorry, but I am not running version $version."]);
 	return 0;
     }
     my $result;
     if (!($result = $self->AcceptUser($user, $password))) {
-	$self->Write([0, "User $user is not permitted to connect."]);
+	$self->RPC::PlServer::Comm::Write
+	    ([0, "User $user is not permitted to connect."]);
 	return 0;
     }
-    $self->Write(ref($result) ? $result : [1, "Welcome!"]);
+    $self->RPC::PlServer::Comm::Write
+	(ref($result) ? $result : [1, "Welcome!"]);
     if (my $au = $self->{'authorized_user'}) {
 	if (ref($au)  &&  (my $cipher = $au->{'cipher'})) {
 	    $self->Debug("User encryption: %s", $cipher);
@@ -165,6 +200,26 @@ sub Accept ($) {
 
 ############################################################################
 #
+#   Name:    new (Class method)
+#
+#   Purpose: Constructor
+#
+#   Inputs:  $class - This class
+#            $attr - Hash ref of attributes
+#            $args - Array ref of command line arguments
+#
+#   Result:  Server object for success, error message otherwise
+#
+############################################################################
+
+sub new ($$;$) {
+    my $self = shift->SUPER::new(@_);
+    $self->RPC::PlServer::Comm::Init();
+}
+
+
+############################################################################
+#
 #   Name:    Run
 #
 #   Purpose: Process client requests
@@ -180,7 +235,7 @@ sub Run ($) {
     my $socket = $self->{'socket'};
 
     while (!$self->Done()  &&  !$socket->eof()) {
-	my $msg = $self->Read();
+	my $msg = $self->RPC::PlServer::Comm::Read();
 	my($error, $command);
 	if (ref($msg) ne 'ARRAY') {
 	    $error = "Expected array";
@@ -200,12 +255,12 @@ sub Run ($) {
 		if ($@) {
 		    $error = "Failed to execute method $command: $@";
 		} else {
-		    $self->Write(\@result);
+		    $self->RPC::PlServer::Comm::Write(\@result);
 		}
 	    }
 	}
 	if ($error) {
-	    $self->Write(\$error);
+	    $self->RPC::PlServer::Comm::Write(\$error);
 	}
     }
 }
@@ -339,6 +394,35 @@ The RPC::PlServer and RPC::PlClient are abstract servers and clients: You
 have to derive your own classes from it.
 
 
+=head2 Additional options
+
+The RPC::PlServer inherits all of Net::Daemon's options and attributes
+and adds the following:
+
+=over 8
+
+=item I<cipher>
+
+The attribute value is an instance of Crypt::DES, Crypt::IDEA or any
+other class with the same API for block encryption. If you supply
+such an attribute, the traffic between client and server will be
+encrypted using this option.
+
+=item I<maxmessage> (B<--maxmessage=size>)
+
+The size of messages exchanged between client and server is restricted,
+in order to omit denial of service attacks. By default the limit is
+65536 bytes.
+
+=item users
+
+This is an attribute of the client object used for Permit/Deny rules
+in the config file. It's value is an array ref of user names that
+are allowed to connect from the given client. See the example config
+file below. L<CONFIGURATION FILE>.
+
+=back
+
 =head2 Error Handling
 
 Error handling is simple with the RPC package, because it is based on
@@ -432,7 +516,7 @@ config file might look as follows:
         'user' => 'nobody',
         'group' => 'nobody',
         'localport' => '1003',
-        'mode' => 'fork'
+        'mode' => 'fork',
 
         # Access control
         'clients' => [
@@ -446,12 +530,12 @@ config file might look as follows:
             # Accept myhost.company.com
             {
                 'mask' => '^myhost\.company\.com$',
-                'accept' => 1
+                'accept' => 1,
                 'users' => [ {
                     'name' => 'bob',
                     'cipher' => $bob_key
                     } ]
-            }
+            },
             # Deny everything else
             {
                 'mask' => '.*',
@@ -490,12 +574,12 @@ is part of the RPC::PlClient man page. See L<RPC::PlClient(3)>.
 
     $MD5_Server::VERSION = '1.0'; # Clients will be refused, if they
                                   # request version 1.1
-    @MD5_Server::ISA = qw(Net::Daemon);
+    @MD5_Server::ISA = qw(RPC::PlServer);
 
     eval {
         # Server options below can be overwritten in the config file or
         # on the command line.
-        my $server = RPC::PlServer->new({
+        my $server = MD5_Server->new({
 	    'pidfile'    => '/var/run/md5serv.pid',
 	    'configfile' => '/etc/md5serv.conf',
 	    'facility'   => 'daemon', # Default
@@ -503,11 +587,12 @@ is part of the RPC::PlClient man page. See L<RPC::PlClient(3)>.
 	    'group'      => 'nobody',
 	    'localport'  => 2000,
 	    'logfile'    => 0,        # Use syslog
-            'mode'       => 'fork'    # Recommended for Unix
+            'mode'       => 'fork',   # Recommended for Unix
             'methods'    => {
 	        'MD5_Server' => {
 		    'ClientObject' => 1,
-		    'CallMethod' => 1
+		    'CallMethod' => 1,
+		    'NewHandle' => 1
 		    },
 	        'MD5' => {
 		    'new' => 1,
@@ -515,7 +600,7 @@ is part of the RPC::PlClient man page. See L<RPC::PlClient(3)>.
 		    'hexdigest' => 1
 		    },
 	        }
-        };
+        });
         $server->Bind();
     };
 

@@ -14,7 +14,7 @@
 #           Am Eisteich 9
 #           72555 Metzingen
 #           Germany
-# 
+#
 #           Email: joe@ispsoft.de
 #           Phone: +49 7123 14887
 #
@@ -54,7 +54,10 @@ sub Write ($$) {
     my($self, $msg) = @_;
     my $socket = $self->{'socket'};
 
-    my($encodedMsg) = Storable::nfreeze($msg);
+    my $encodedMsg = Storable::nfreeze($msg);
+    $encodedMsg = Compress::Zlib::compress($encodedMsg)
+	if ($self->{'compression'});
+
     my($encodedSize) = length($encodedMsg);
     if (my $cipher = $self->{'cipher'}) {
 	my $size = $cipher->blocksize;
@@ -107,6 +110,9 @@ sub Read($) {
 	$readSize -= $result;
     }
     $encodedSize = unpack("N", $encodedSize);
+    my $max = $self->{'maxmessage'} || (1 << 16);
+    die "Maximum message size of $max exceeded, use option 'maxmessage' to"
+	. " increase" if $encodedSize > $max;
     $readSize = $encodedSize;
     if ($self->{'cipher'}) {
 	$blockSize = $self->{'cipher'}->blocksize;
@@ -132,7 +138,35 @@ sub Read($) {
 	}
 	$msg = substr($msg, 0, $encodedSize);
     }
+    $msg = Compress::Zlib::uncompress($msg) if ($self->{'compression'});
     Storable::thaw($msg);
+}
+
+
+############################################################################
+#
+#   Name:    Init
+#
+#   Purpose: Initialize an object for using RPC::PlServer::Comm methods
+#
+#   Input:   $self - Instance
+#
+#   Returns: The instance in case of success, dies in case of trouble.
+#
+############################################################################
+
+sub Init {
+    my $self = shift;
+    if (my $comp = $self->{'compression'}) {
+	if ($comp eq 'off') {
+	    $self->{'compression'} = undef;
+	} elsif ($comp eq 'gzip') {
+	    require Compress::Zlib;
+	} else {
+	    die "Unknown compression type ($comp), use 'off' or 'gzip'";
+	}
+    }
+    $self;
 }
 
 
