@@ -28,7 +28,7 @@ require Storable;
 package RPC::PlServer::Comm;
 
 
-$RPC::PlServer::Comm::VERSION = '0.1001';
+$RPC::PlServer::Comm::VERSION = '0.1002';
 
 
 ############################################################################
@@ -71,6 +71,7 @@ sub Write ($$) {
 	$encodedMsg = $msg;
     }
 
+    local $\;
     if (!$socket->print(pack("N", $encodedSize), $encodedMsg)  ||
 	!$socket->flush()) {
 	die "Error while writing socket: $!";

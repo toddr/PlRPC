@@ -23,20 +23,22 @@ SYNOPSIS
       $server->Bind();
 
 DESCRIPTION
-    PlRPC (Perl RPC) is a package for implementing servers and clients that
-    are written in Perl entirely. The name is borrowed from Sun's RPC
-    (Remote Procedure Call), but it could as well be RMI like Java's "Remote
-    Method Interface), because PlRPC gives you the complete power of Perl's
-    OO framework in a very simple manner.
+    PlRPC (Perl RPC) is a package for implementing servers and
+    clients that are written in Perl entirely. The name is borrowed
+    from Sun's RPC (Remote Procedure Call), but it could as well be
+    RMI like Java's "Remote Method Interface), because PlRPC gives
+    you the complete power of Perl's OO framework in a very simple
+    manner.
 
-    RPC::PlServer is the package used on the server side, and you guess what
-    RPC::PlClient is for. Both share the package RPC::PlServer::Comm for
-    communication purposes. See the PlRPC::Client(3) manpage and the
-    RPC::PlServer::Comm manpage for these parts.
+    RPC::PlServer is the package used on the server side, and you
+    guess what RPC::PlClient is for. Both share the package
+    RPC::PlServer::Comm for communication purposes. See the
+    PlRPC::Client(3) manpage and the RPC::PlServer::Comm manpage for
+    these parts.
 
-    PlRPC works by defining a set of methods that may be executed by the
-    client. For example, the server might offer a method "multiply" to the
-    client. Now the clients method call
+    PlRPC works by defining a set of methods that may be executed by
+    the client. For example, the server might offer a method
+    "multiply" to the client. Now the clients method call
 
         @result = $client->multiply($a, $b);
 
@@ -44,40 +46,42 @@ DESCRIPTION
 
         @result = $server->multiply($a, $b);
 
-    on the server. The arguments and results will be transferred to or from
-    the server automagically. (This magic has a name in Perl: It's the
-    Storable module, my thanks to Raphael Manfredi for this excellent
-    package.) Simple, eh? :-)
+    on the server. The arguments and results will be transferred to
+    or from the server automagically. (This magic has a name in
+    Perl: It's the Storable module, my thanks to Raphael Manfredi
+    for this excellent package.) Simple, eh? :-)
 
-    The RPC::PlServer and RPC::PlClient are abstract servers and clients:
-    You have to derive your own classes from it.
+    The RPC::PlServer and RPC::PlClient are abstract servers and
+    clients: You have to derive your own classes from it.
 
   Additional options
 
-    The RPC::PlServer inherits all of Net::Daemon's options and attributes
-    and adds the following:
+    The RPC::PlServer inherits all of Net::Daemon's options and
+    attributes and adds the following:
 
     *cipher*
-            The attribute value is an instance of Crypt::DES, Crypt::IDEA or
-            any other class with the same API for block encryption. If you
-            supply such an attribute, the traffic between client and server
-            will be encrypted using this option.
+            The attribute value is an instance of Crypt::DES,
+            Crypt::IDEA or any other class with the same API for
+            block encryption. If you supply such an attribute, the
+            traffic between client and server will be encrypted
+            using this option.
 
     *maxmessage* (--maxmessage=size)
-            The size of messages exchanged between client and server is
-            restricted, in order to omit denial of service attacks. By
-            default the limit is 65536 bytes.
+            The size of messages exchanged between client and server
+            is restricted, in order to omit denial of service
+            attacks. By default the limit is 65536 bytes.
 
-    users   This is an attribute of the client object used for Permit/Deny
-            rules in the config file. It's value is an array ref of user
-            names that are allowed to connect from the given client. See the
-            example config file below. the CONFIGURATION FILE entry
-            elsewhere in this document.
+    users   This is an attribute of the client object used for
+            Permit/Deny rules in the config file. It's value is an
+            array ref of user names that are allowed to connect from
+            the given client. See the example config file below. the
+            section on "CONFIGURATION FILE".
 
   Error Handling
 
-    Error handling is simple with the RPC package, because it is based on
-    Perl exceptions completely. Thus your typical code looks like this:
+    Error handling is simple with the RPC package, because it is
+    based on Perl exceptions completely. Thus your typical code
+    looks like this:
 
       eval {
           # Do something here. Don't care for errors.
@@ -92,8 +96,9 @@ DESCRIPTION
 
       my $server = RPC::PlServer(\%options, \@args);
 
-    (Class method) This constructor is immediately inherited from the
-    Net::Daemon package. See the Net::Daemon(3) manpage for details.
+    (Class method) This constructor is immediately inherited from
+    the Net::Daemon package. See the Net::Daemon(3) manpage for
+    details.
 
   Access Control
 
@@ -101,28 +106,31 @@ DESCRIPTION
       $ok = $self->AcceptVersion($version);
       $ok = $self->AcceptUser($user, $password);
 
-    The RPC::PlServer package has a very detailed access control scheme:
-    First of all it inherits Net::Daemon's host based access control. It
-    adds version control and user authorization. To achieve that, the method
-    *Accept* from Net::Daemon is split into three methods,
-    *AcceptApplication*, *AcceptVersion* and *AcceptUser*, each of them
-    returning TRUE or FALSE. The client receives the arguments as the
-    attributes *application*, *version*, *user* and *password*. A client is
-    accepted only if all of the above methods are returning TRUE.
+    The RPC::PlServer package has a very detailed access control
+    scheme: First of all it inherits Net::Daemon's host based access
+    control. It adds version control and user authorization. To
+    achieve that, the method *Accept* from Net::Daemon is split into
+    three methods, *AcceptApplication*, *AcceptVersion* and
+    *AcceptUser*, each of them returning TRUE or FALSE. The client
+    receives the arguments as the attributes *application*,
+    *version*, *user* and *password*. A client is accepted only if
+    all of the above methods are returning TRUE.
 
-    The default implementations are as follows: The AcceptApplication method
-    returns TRUE, if $self is a subclass of $app. The AcceptVersion method
-    returns TRUE, if the requested version is less or equal to
-    ${$class}::VERSION, $self being an instance of $class. Whether a user is
-    permitted to connect depends on the client configuration. See the
-    CONFIGURATION FILE entry elsewhere in this document below for examples.
+    The default implementations are as follows: The
+    AcceptApplication method returns TRUE, if $self is a subclass of
+    $app. The AcceptVersion method returns TRUE, if the requested
+    version is less or equal to ${$class}::VERSION, $self being an
+    instance of $class. Whether a user is permitted to connect
+    depends on the client configuration. See the section on
+    "CONFIGURATION FILE" below for examples.
 
   Method based access control
 
     Giving a client the ability to invoke arbitrary methods can be a
-    terrible security hole. Thus the server has a *methods* attribute. This
-    is a hash ref of class names as keys, the values being hash refs again
-    with method names as the keys. That is, if your hash looks as follows:
+    terrible security hole. Thus the server has a *methods*
+    attribute. This is a hash ref of class names as keys, the values
+    being hash refs again with method names as the keys. That is, if
+    your hash looks as follows:
 
         $self->{'methods'} = {
             'CalcServer' => {
@@ -136,15 +144,15 @@ DESCRIPTION
                 'subtract' => 1 }
             };
 
-    then the client may use the CalcServer's *NewHandle* method to create
-    objects, but only via the permitted constructor Calculator->new. Once a
-    Calculator object is created, the server may invoke the methods
-    multiply, add, divide and subtract.
+    then the client may use the CalcServer's *NewHandle* method to
+    create objects, but only via the permitted constructor
+    Calculator->new. Once a Calculator object is created, the server
+    may invoke the methods multiply, add, divide and subtract.
 
 CONFIGURATION FILE
-    The server config file is inherited from Net::Daemon. It adds the
-    *users* and *cipher* attribute to the client list. Thus a typical config
-    file might look as follows:
+    The server config file is inherited from Net::Daemon. It adds
+    the *users* and *cipher* attribute to the client list. Thus a
+    typical config file might look as follows:
 
         # Load external modules; this is not required unless you use
         # the chroot() option.
@@ -190,18 +198,18 @@ CONFIGURATION FILE
             ]
         }
 
-    Things you should note: The user list of 192.168.1.* contains scalar
-    values, but the user list of myhost.company.com contains hash refs: This
-    is required, because the user configuration is more specific for user
-    based encryption.
+    Things you should note: The user list of 192.168.1.* contains
+    scalar values, but the user list of myhost.company.com contains
+    hash refs: This is required, because the user configuration is
+    more specific for user based encryption.
 
 EXAMPLE
-    Enough wasted time, spread the example, not the word. :-) Let's write a
-    simple server, say a server for MD5 digests. The server uses the
-    external package MD5, but the client doesn't need to install the
-    package. the MD5(3) manpage. We present the server source here, the
-    client is part of the RPC::PlClient man page. See the RPC::PlClient(3)
-    manpage.
+    Enough wasted time, spread the example, not the word. :-) Let's
+    write a simple server, say a server for MD5 digests. The server
+    uses the external package MD5, but the client doesn't need to
+    install the package. the MD5(3) manpage. We present the server
+    source here, the client is part of the RPC::PlClient man page.
+    See the RPC::PlClient(3) manpage.
 
         #!/usr/bin/perl -wT
         # Note the -T switch! This is always recommended for Perl servers.
@@ -247,50 +255,53 @@ EXAMPLE
         };
 
 SECURITY
-    It has to be said: PlRPC based servers are a potential security problem!
-    I did my best to avoid security problems, but it is more than likely,
-    that I missed something. Security was a design goal, but not *the*
-    design goal. (A well known problem ...)
+    It has to be said: PlRPC based servers are a potential security
+    problem! I did my best to avoid security problems, but it is
+    more than likely, that I missed something. Security was a design
+    goal, but not *the* design goal. (A well known problem ...)
 
     I highly recommend the following design principles:
 
   Protection against "trusted" users
 
     perlsec
-        Read the perl security FAQ (`perldoc perlsec') and use the `-T'
-        switch.
+        Read the perl security FAQ (`perldoc perlsec') and use the
+        `-T' switch.
 
     taintperl
         Use the `-T' switch. I mean it!
 
     Verify data
-        Never untaint strings withouth verification, better verify twice.
-        For example the *CallMethod* function first checks, whether an
-        object handle is valid before coercing a method on it.
+        Never untaint strings withouth verification, better verify
+        twice. For example the *CallMethod* function first checks,
+        whether an object handle is valid before coercing a method
+        on it.
 
     Be restrictive
         Think twice, before you give a client access to a method.
 
     perlsec
-        And just in case I forgot it: Read the `perlsec' man page. :-)
+        And just in case I forgot it: Read the `perlsec' man page.
+        :-)
 
   Protection against untrusted users
 
     Host based authorization
-        PlRPC has a builtin host based authorization scheme; use it! See the
-        CONFIGURATION FILE entry elsewhere in this document.
+        PlRPC has a builtin host based authorization scheme; use it!
+        See the section on "/CONFIGURATION FILE".
 
     User based authorization
-        PlRPC has a builtin user based authorization scheme; use it! See the
-        CONFIGURATION FILE entry elsewhere in this document.
+        PlRPC has a builtin user based authorization scheme; use it!
+        See the section on "/CONFIGURATION FILE".
 
     Encryption
-        Using encryption with PlRPC is extremely easy. There is absolutely
-        no reason for communicating unencrypted with the clients. Even more:
-        I recommend two phase encryption: The first phase is the login
-        phase, where to use a host based key. As soon as the user has
-        authorized, you should switch to a user based key. See the
-        DBI::ProxyServer for an example.
+        Using encryption with PlRPC is extremely easy. There is
+        absolutely no reason for communicating unencrypted with the
+        clients. Even more: I recommend two phase encryption: The
+        first phase is the login phase, where to use a host based
+        key. As soon as the user has authorized, you should switch
+        to a user based key. See the DBI::ProxyServer for an
+        example.
 
 AUTHOR AND COPYRIGHT
     The PlRPC-modules are
@@ -305,14 +316,15 @@ AUTHOR AND COPYRIGHT
 
       All rights reserved.
 
-    You may distribute this package under the terms of either the GNU
-    General Public License or the Artistic License, as specified in the Perl
-    README file.
+    You may distribute this package under the terms of either the
+    GNU General Public License or the Artistic License, as specified
+    in the Perl README file.
 
 SEE ALSO
-    the RPC::PlClient(3) manpage, the RPC::PlServer::Comm(3) manpage, the
-    Net::Daemon(3) manpage, the Net::Daemon::Log(3) manpage, the Storable(3)
-    manpage, the Sys::Syslog(3) manpage, the Win32::EventLog(3) manpage
+    the RPC::PlClient(3) manpage, the RPC::PlServer::Comm(3)
+    manpage, the Net::Daemon(3) manpage, the Net::Daemon::Log(3)
+    manpage, the Storable(3) manpage, the Sys::Syslog(3) manpage,
+    the Win32::EventLog(3) manpage
 
     See the DBI::ProxyServer(3) manpage for an example application.
 
