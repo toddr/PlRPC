@@ -30,7 +30,7 @@ use IO::Socket ();
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2013';
+$RPC::PlClient::VERSION = '0.2014';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 
@@ -306,7 +306,7 @@ that both sides change the encryption mode.
 Example:
 
     use Crypt::DES;
-    $cipher = DES->new(pack("H*", "0123456789abcdef"));
+    $cipher = Crypt::DES->new(pack("H*", "0123456789abcdef"));
     $client = RPC::PlClient->new('cipher' => $cipher,
 				...);
 

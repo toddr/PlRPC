@@ -1,3 +1,9 @@
+2001-01-23  Jochen Wiedmann <joe@ispsoft.de> (0.2014)
+
+	* lib/RPC/PlServer.pm: Changed DES->new to Crypt::DES->new.
+	  (Thanks heaven, DES is now a standard module!) Paul
+	  Schinder <schinder@pobox.com>
+
 2001-01-22  Jochen Wiedmann <joe@ispsoft.de> (0.2013)
 
 	* lib/RPC/PlClient.pm (DESTROY): $@ was possibly destroyed.

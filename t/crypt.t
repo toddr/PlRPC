@@ -5,7 +5,7 @@ require 5.004;
 use strict;
 
 eval { require Crypt::DES };
-if ($@) {
+if ($@ || $Crypt::DES::VERSION < 2.03) {
     print "1..0\n";
     exit 0;
 }
@@ -22,19 +22,19 @@ my $userkey = '9823adc3287efa98';
 
 # Create a configfile with host encryption.
 my $cfg = <<"EOF";
-require Crypt::DES;
 
+require Crypt::DES;
 {
     clients => [ {
 	'mask'   => '^127\.0\.0\.1\$',
 	'accept' => 1,
-	'cipher' => DES->new(pack("H*", "$hostkey")),
+	'cipher' => Crypt::DES->new(pack("H*", "$hostkey")),
 	'users' => [ {
 	    'name' => 'bob'
 	    },
 	    {
 	    'name' => 'jim',
-	    'cipher' => DES->new(pack("H*", "$userkey"))
+	    'cipher' => Crypt::DES->new(pack("H*", "$userkey"))
 	    } ] }
     ]
 }
@@ -54,8 +54,8 @@ my($handle, $port);
 
 
 require Crypt::DES;
-my $hostcipher = DES->new(pack("H*", $hostkey));
-my $usercipher = DES->new(pack("H*", $userkey));
+my $hostcipher = Crypt::DES->new(pack("H*", $hostkey));
+my $usercipher = Crypt::DES->new(pack("H*", $userkey));
 
 my @opts = ('peeraddr' => '127.0.0.1', 'peerport' => $port, 'debug' => 1,
 	    'application' => 'CalcServer', 'version' => 0.01,
