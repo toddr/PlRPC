@@ -23,15 +23,15 @@
 
 use strict;
 
-use RPC::PlServer::Comm ();
-use Net::Daemon::Log ();
-use IO::Socket ();
+require RPC::PlServer::Comm;
+require Net::Daemon::Log;
+require IO::Socket;
 
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2010';
-@RPC::PlClient::ISA = qw(Net::Daemon::Log);
+$RPC::PlClient::VERSION = '0.2004';
+@RPC::PlClient::ISA = qw(RPC::PlServer::Comm Net::Daemon::Log);
 
 
 ############################################################################
@@ -77,16 +77,16 @@ sub new ($@) {
 		 $socket->peerhost(), $socket->peerport());
     $self->Debug("Sending login message: %s, %s, %s, %s",
 		 $app, $version, $user, "x" x length($password));
-    $self->RPC::PlServer::Comm::Write([$app, $version, $user, $password]);
+    $self->Write([$app, $version, $user, $password]);
     $self->Debug("Waiting for server's response ...");
-    my $reply = $self->RPC::PlServer::Comm::Read();
+    my $reply = $self->Read();
+    die "Unexpected EOF from server" unless defined $reply;
     die "Expected server to return an array ref"
 	unless $reply && ref($reply) eq 'ARRAY';
     my $msg = defined($reply->[1]) ? $reply->[1] : '';
     die "Refused by server: $msg" unless $reply->[0];
     $self->Debug("Logged in, server replies: $msg");
 
-    $self->RPC::PlServer::Comm::Init();
     return ($self, $msg) if wantarray;
     $self;
 }
@@ -108,15 +108,12 @@ sub new ($@) {
 
 sub Call ($@) {
     my $self = shift;
-    $self->RPC::PlServer::Comm::Write([@_]);
-    my $msg = $self->RPC::PlServer::Comm::Read();
-    if (!$msg  ||  !ref($msg)) {
-	die "Expected server to return a reference";
-    } elsif (ref($msg) eq 'SCALAR') {
-	die "Server returned error: $$msg";
-    } elsif (ref($msg) ne 'ARRAY') {
-	die "Expected server to return an array ref";
-    }
+    $self->Write([@_]);
+    my $msg = $self->Read();
+    die "Unexpected EOF from server" unless defined $msg;
+    die "Expected server to return a reference" unless ref($msg);
+    die "Server returned error: $$msg" if ref($msg) eq 'SCALAR';
+    die "Expected server to return an array ref" if ref($msg) ne 'ARRAY';
     @$msg;
 }
 
@@ -288,11 +285,6 @@ name, a protocol version and optionally a user name and password.
 These arguments are handled by the servers I<Application>, I<Version>
 and I<User> methods.
 
-=item compression
-
-Set this to off (default, no compression) or gzip (requires the
-Compress::Zlib module).
-
 =item cipher
 
 This attribute can be used to add encryption quite easily. PlRPC is not
@@ -311,12 +303,6 @@ Example:
     $cipher = DES->new(pack("H*", "0123456789abcdef"));
     $client = RPC::PlClient->new('cipher' => $cipher,
 				...);
-
-=item maxmessage
-
-The size of messages exchanged between client and server is restricted,
-in order to omit denial of service attacks. By default the limit is
-65536 bytes.
 
 =item debug
 
@@ -400,7 +386,7 @@ RPC::PlServer man page. See L<RPC::PlServer(3)>.
     require RPC::PlClient;
 
     # Constants
-    my $MY_APPLICATION = "MD5_Server";
+    my $MY_APPLICATION = "MD5 Server";
     my $MY_VERSION = 1.0;
     my $MY_USER = "";		# The server doesn't require user
     my $MY_PASSWORD = "";	# authentication.

@@ -9,7 +9,6 @@ lib/RPC/PlServer/Comm.pm
 lib/RPC/PlServer/Test.pm
 t/base.t
 t/client.t
-t/compress.t
 t/crypt.t
 t/methods.t
 t/lib.pl
