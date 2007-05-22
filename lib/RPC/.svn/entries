@@ -1,0 +1,58 @@
+8
+
+dir
+3
+file:///C:/svnrepos/Documents%20and%20Settings/malcolm/My%20Documents/PlRPC/trunk/lib/RPC
+file:///C:/svnrepos/Documents%20and%20Settings/malcolm/My%20Documents/PlRPC
+
+
+
+2007-05-22T20:45:45.964464Z
+3
+malcolm
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+478e7aeb-7505-6b47-aba6-6b5684a6b933
+
+PlServer
+dir
+
+PlClient.pm
+file
+
+
+
+
+2007-05-22T20:48:05.705401Z
+c89ac3304e9500b69c64e536774af321
+2007-05-22T20:45:45.964464Z
+3
+malcolm
+
+PlClient
+dir
+
+PlServer.pm
+file
+
+
+
+
+2007-05-22T20:48:05.705401Z
+343c6aa2dd9f1485be36b401ab09047c
+2007-05-22T20:45:45.964464Z
+3
+malcolm
+
