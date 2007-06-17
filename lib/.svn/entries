@@ -1,34 +1,0 @@
-8
-
-dir
-3
-file:///C:/svnrepos/Documents%20and%20Settings/malcolm/My%20Documents/PlRPC/trunk/lib
-file:///C:/svnrepos/Documents%20and%20Settings/malcolm/My%20Documents/PlRPC
-
-
-
-2007-05-22T20:45:45.964464Z
-3
-malcolm
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-478e7aeb-7505-6b47-aba6-6b5684a6b933
-
-RPC
-dir
-
-Bundle
-dir
-

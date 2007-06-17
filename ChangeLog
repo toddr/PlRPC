@@ -1,3 +1,6 @@
+2007-06-17  Malcolm Nooning  <m.nooning@cpan.org> (0.2020)
+	* Got rid of the .svn directories that I errently allowed into
+	  the last gz upload.
 2007-05-16  Malcolm Nooning  <m.nooning@cpan.org> (0.2019)
 	* Fixed an @opts name that was causing crypt.t to fail.
 	  Namely, changed 'cipher' to 'usercipher', but only in @opts,
