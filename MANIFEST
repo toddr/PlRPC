@@ -16,3 +16,4 @@ t/methods.t
 t/lib.pl
 t/server
 META.yml                                 Module meta-data (added by MakeMaker)
+META.json                                Module meta-data (added by MakeMaker)

@@ -1,12 +1,27 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         PlRPC
-version:      0.2018
-version_from: lib/RPC/PlServer.pm
-installdirs:  site
+---
+abstract: 'Perl Remote Method Invocation'
+author:
+  - 'Jochen Wiedmann (jochen.wiedmann@freenet.de)'
+build_requires:
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.58, CPAN::Meta::Converter version 2.110930001'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: PlRPC
+no_index:
+  directory:
+    - t
+    - inc
 requires:
-    Net::Daemon:                   0.13
-    Storable:                      0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+  File::Spec: 0
+  Net::Daemon: 0.13
+  Storable: 0
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://github.com/toddr/PlRPC/tree/master
+version: 0.2021_01
