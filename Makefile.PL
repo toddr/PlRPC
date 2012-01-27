@@ -73,6 +73,14 @@ if ($ExtUtils::MakeMaker::VERSION >= 5.43) {
     $opts{'PREREQ_PM'} = { 'Storable'=> 0,
 			   'Net::Daemon' => 0.13 },
     $opts{'ABSTRACT'} = 'Perl Remote Method Invocation';
+    $opts{'META_MERGE'} = {
+        'resources' => {'license' => 'http://dev.perl.org/licenses/',
+            #'homepage' => 'http://wiki.github.com/toddr/PlRPC',
+	    #'bugtracker' => 'http://code.google.com/p/PlRPC/issues/list',
+            'repository' => 'http://github.com/toddr/PlRPC/tree/master',
+            #'MailingList' => 'http://groups.google.com/group/PlRPC',
+        }
+    }
 }
 
 WriteMakefile(%opts);
