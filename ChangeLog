@@ -1,3 +1,6 @@
+2011-01-27 Todd Rinaldo <toddr@cpan.org> (0.2021_01)
+	* Dev Release
+	* Fix RT 74430 - Don't try to write to syslog during tests.
 2007-06-17  Malcolm Nooning  <m.nooning@cpan.org> (0.2020)
 	* Got rid of the .svn directories that I errently allowed into
 	  the last gz upload.

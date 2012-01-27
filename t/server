@@ -17,6 +17,7 @@ $| = 1;
 require Net::Daemon::Test;
 require RPC::PlServer::Test;
 require IO::Socket;
+use File::Spec; # File::Spec was first released with perl 5.00405
 
 
 package Calculator;
@@ -74,7 +75,8 @@ sub Version ($) {
 
 package main;
 
-my $server = CalcServer->new({'pidfile' => 'none'}, \@ARGV);
+open(my $log_fh, '>>', File::Spec->devnull());
+my $server = CalcServer->new({'pidfile' => 'none', 'logfile' => $log_fh}, \@ARGV);
 
 $server->Bind();
 

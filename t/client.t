@@ -3,6 +3,7 @@
 
 require 5.004;
 use strict;
+use File::Spec; # File::Spec was first released with perl 5.00405
 
 require "t/lib.pl";
 
@@ -30,7 +31,8 @@ my @opts = ('peeraddr' => '127.0.0.1', 'peerport' => $port, 'debug' => 1,
 my $client;
 
 # Making a first connection and closing it immediately
-Test(eval { RPC::PlClient->new(@opts) })
+open(my $log_fh, '>>', File::Spec->devnull());
+Test(eval { RPC::PlClient->new(@opts, 'logfile' => $log_fh) })
     or print "Failed to make first connection: $@\n";
 
 RunTests(@opts);

@@ -25,7 +25,7 @@ use IO::Socket ();
 
 package RPC::PlClient;
 
-$RPC::PlClient::VERSION = '0.2020';
+$RPC::PlClient::VERSION = '0.2021_01';
 @RPC::PlClient::ISA = qw(Net::Daemon::Log);
 
 

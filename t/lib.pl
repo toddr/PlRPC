@@ -2,6 +2,7 @@ require IO::Socket;
 require Config;
 require Net::Daemon::Test;
 require RPC::PlClient;
+use File::Spec; # File::Spec was first released with perl 5.00405
 
 
 sub Test($) {
@@ -18,6 +19,8 @@ sub RunTests (@) {
 	shift;
 	$key = shift;
     }
+    open(my $log_fh, '>>', File::Spec->devnull());
+    push @_, 'logfile', $log_fh;
 
     # Making a new connection
     Test($client = eval { RPC::PlClient->new(@_) })
