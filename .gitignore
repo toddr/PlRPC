@@ -1,0 +1,10 @@
+/Makefile
+/blib/
+/ndtest.prt
+/pm_to_blib
+/t/compress.cfg
+/t/methods.cfg
+/Makefile.old
+/PlRPC-0*
+/MYMETA.yml
+/MYMETA.json
